@@ -119,6 +119,71 @@ def Q2GenerateDF():
 
 q2_df = Q2GenerateDF()
 Q1GenerateGraph(q2_df, "Date_num", "R2_Val", 'Day', 'R Squared Value', 'R Squared value by Day for Y2', "2_R2byDay")
+print("The average R squared value for year 2 is " + str(q2_df['R2_Val'].mean()))
+print("The R squared value is all over the place and doesn't consistantly explain price movements")
+
+
+print("\n")
+# Question 3 ====================================================================================================
+print("Question 3:")
+
+
+def Q3RegTrading():
+	model = LinearRegression(fit_intercept=True)
+	long_position = False
+	short_position = False
+	long_count = 0
+	short_count = 0
+	cur_stock = 0
+	i = 0
+	while i < file_length:
+		if df['Year'].iloc[i].astype(str) == "2017":
+			i += 1
+			continue
+		if df['Year'].iloc[i].astype(str) == "2019":
+			i = file_length
+			continue
+
+		x = np.arange(1, 9)
+		y = df['Adj Close'][(df.index <= i) & (df.index > i - 8)]
+		x_2 = x[:, np.newaxis]
+		model.fit(x_2, y)
+
+		tmr_prediction = model.predict([[i + 1]])
+		today_true = df['Adj Close'].iloc[i]
+
+		if tmr_prediction > today_true:
+			if not long_position:
+				#cur_stock = 100 / today_true
+				long_position = True
+				long_count += 1
+			if short_position:
+				#trade_sum += 100 - (cur_stock * today_true)
+				#trade_count += 1
+				short_position = False
+		elif tmr_prediction < today_true:
+			if long_position:
+				#trade_sum += (cur_stock * today_true) - 100
+				#trade_count += 1
+				long_position = False
+			if not short_position:
+				#cur_stock = 100 / today_true
+				short_position = True
+				short_count += 1
+
+		i += 1
+	return long_count, short_count
+
+long_count, short_count = Q3RegTrading()
+print("In year 2, trading with linear regression resulted in " + str(long_count) + " long positions and "
+	+ str(short_count) + " short positions")
+
+
+print("\n")
+# Question 4 ====================================================================================================
+print("Question 4:")
+
+
 
 
 
