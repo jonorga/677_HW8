@@ -115,6 +115,47 @@ print("\n")
 print("Question 2:")
 
 
+def Q2ComputeAccuracy(deg, d_str, w):
+	i = w + 50
+	w_total = 0
+	w_correct = 0
+	while i < 100:
+		x = np.arange(1, w + 1)
+		y = df['Close'][(df.index <= i) & (df.index > i - w)].to_numpy()
+		coefs = np.polyfit(x, y, deg)
+
+		next_pos = w + 1
+		if deg == 1:
+			tmr_prediction = ( coefs[0] * next_pos ) + coefs[1]
+		elif deg == 2:
+			tmr_prediction = ( coefs[0] * (next_pos ** 2) ) + ( coefs[1] * next_pos ) + coefs[2]
+		elif deg == 3:
+			tmr_prediction = ( coefs[0] * (next_pos ** 3) ) + ( coefs[0] * (next_pos ** 2) ) 
+			tmr_prediction += ( coefs[1] * next_pos ) + coefs[2]
+
+		today_true = df['Close'].iloc[i]
+		w_total += 1
+		if today_true < tmr_prediction and df['Color'].iloc[i + 1] == "Green":
+			w_correct += 1
+		elif today_true  > tmr_prediction and df['Color'].iloc[i + 1] == "Red":
+			w_correct += 1
+		i += 1
+	w_acc = -1 if w_total == 0 else (w_correct / w_total)
+	print("For year 2, using a " + d_str + " degree polynomial function with a W value of " + str(w)
+		+ " resulted in an accuracy of " + str(round(w_acc * 100, 2)) + "%")
+
+
+Q2ComputeAccuracy(1, "1st", deg1_df['W'].loc[deg1_df['Accuracy'].idxmax()])
+Q2ComputeAccuracy(2, "2nd", deg2_df['W'].loc[deg2_df['Accuracy'].idxmax()])
+Q2ComputeAccuracy(3, "3rd", deg3_df['W'].loc[deg3_df['Accuracy'].idxmax()])
+
+
+print("\n")
+# Question 3 ====================================================================================================
+print("Question 3:")
+
+
+
 
 
 
