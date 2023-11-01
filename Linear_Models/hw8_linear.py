@@ -4,6 +4,7 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("cmg_weeks.csv")
 file_length = len(df.index)
@@ -47,6 +48,8 @@ def Q1GenerateData(deg):
 	acc_list = []
 	while w <= 12:
 		i = w
+		w_total = 0
+		w_correct = 0
 		while i < 50:
 			x = np.arange(1, w + 1)
 			y = df['Close'][(df.index <= i) & (df.index > i - w)].to_numpy()
@@ -62,15 +65,56 @@ def Q1GenerateData(deg):
 				tmr_prediction += ( coefs[1] * next_pos ) + coefs[2]
 
 			today_true = df['Close'].iloc[i]
-			
-			# If tomorrow prediction > today true:
-			#	predict green for tomorrow
-			# else: red
-			# add one to prediction count
-			# if prediction is equal to tomorrow true: add one to correct count
+			w_total += 1
+			if today_true < tmr_prediction and df['Color'].iloc[i + 1] == "Green":
+				w_correct += 1
+			elif today_true  > tmr_prediction and df['Color'].iloc[i + 1] == "Red":
+				w_correct += 1
 			i += 1
-		# append to a running array correct / total
+		w_acc = -1 if w_total == 0 else (w_correct / w_total)
+		acc_list.append(w_acc)
 		w += 1
 	return acc_list
 
-Q1GenerateData(1)
+
+def Q1GenerateGraph(data1, data2, data3):
+	fig, ax = plt.subplots()
+	ax.plot(data1['W'], data1['Accuracy'], label="1st Degree")
+	ax.plot(data2['W'], data2['Accuracy'], label="2nd Degree")
+	ax.plot(data3['W'], data3['Accuracy'], label="3rd Degree")
+	ax.set(xlabel='W Value', ylabel='Accuracy',
+	       title='W Accuracy by Value')
+	fig.legend(loc="upper right")
+	ax.grid()
+	print("Saving Q1 graph...")
+	fig.savefig("Q1_WAccuracy_Graph.png")
+
+
+deg1_acc = Q1GenerateData(1)
+deg2_acc = Q1GenerateData(2)
+deg3_acc = Q1GenerateData(3)
+
+deg1_data = []
+deg2_data = []
+deg3_data = []
+w = 5
+while w <= 12:
+	deg1_data.append([w, deg1_acc[w - 5]])
+	deg2_data.append([w, deg2_acc[w - 5]])
+	deg3_data.append([w, deg3_acc[w - 5]])
+	w += 1
+
+deg1_df = pd.DataFrame(deg1_data, columns=['W', 'Accuracy'])
+deg2_df = pd.DataFrame(deg2_data, columns=['W', 'Accuracy'])
+deg3_df = pd.DataFrame(deg3_data, columns=['W', 'Accuracy'])
+
+Q1GenerateGraph(deg1_df, deg2_df, deg3_df)
+
+print("\n")
+# Question 2 ====================================================================================================
+print("Question 2:")
+
+
+
+
+
