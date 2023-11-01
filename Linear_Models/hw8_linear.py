@@ -119,6 +119,8 @@ def Q2ComputeAccuracy(deg, d_str, w):
 	i = w + 50
 	w_total = 0
 	w_correct = 0
+	predicted = []
+	actual = []
 	while i < 100:
 		x = np.arange(1, w + 1)
 		y = df['Close'][(df.index <= i) & (df.index > i - w)].to_numpy()
@@ -135,26 +137,51 @@ def Q2ComputeAccuracy(deg, d_str, w):
 
 		today_true = df['Close'].iloc[i]
 		w_total += 1
+		actual.append(df['Color'].iloc[i + 1])
 		if today_true < tmr_prediction and df['Color'].iloc[i + 1] == "Green":
 			w_correct += 1
+			predicted.append("Green")
 		elif today_true  > tmr_prediction and df['Color'].iloc[i + 1] == "Red":
 			w_correct += 1
+			predicted.append("Red")
 		i += 1
 	w_acc = -1 if w_total == 0 else (w_correct / w_total)
 	print("For year 2, using a " + d_str + " degree polynomial function with a W value of " + str(w)
 		+ " resulted in an accuracy of " + str(round(w_acc * 100, 2)) + "%")
+	return [actual, predicted]
 
 
-Q2ComputeAccuracy(1, "1st", deg1_df['W'].loc[deg1_df['Accuracy'].idxmax()])
-Q2ComputeAccuracy(2, "2nd", deg2_df['W'].loc[deg2_df['Accuracy'].idxmax()])
-Q2ComputeAccuracy(3, "3rd", deg3_df['W'].loc[deg3_df['Accuracy'].idxmax()])
+deg1_ct_vals = Q2ComputeAccuracy(1, "1st", deg1_df['W'].loc[deg1_df['Accuracy'].idxmax()])
+deg2_ct_vals = Q2ComputeAccuracy(2, "2nd", deg2_df['W'].loc[deg2_df['Accuracy'].idxmax()])
+deg3_ct_vals = Q2ComputeAccuracy(3, "3rd", deg3_df['W'].loc[deg3_df['Accuracy'].idxmax()])
 
 
 print("\n")
 # Question 3 ====================================================================================================
 print("Question 3:")
 
+y_actu1 = pd.Series(deg1_ct_vals[0], name='Actual')
+y_pred1 = pd.Series(deg1_ct_vals[1], name='Predicted')
+y_actu2 = pd.Series(deg2_ct_vals[0], name='Actual')
+y_pred2 = pd.Series(deg2_ct_vals[1], name='Predicted')
+y_actu3 = pd.Series(deg3_ct_vals[0], name='Actual')
+y_pred3 = pd.Series(deg3_ct_vals[1], name='Predicted')
 
+deg1_cm = pd.crosstab(y_actu1, y_pred1)
+deg2_cm = pd.crosstab(y_actu2, y_pred2)
+deg3_cm = pd.crosstab(y_actu3, y_pred3)
+
+print("1st degree polynomial confusion matrix:")
+print(deg1_cm)
+print("\n2nd degree polynomial confusion matrix:")
+print(deg2_cm)
+print("\n3rd degree polynomial confusion matrix:")
+print(deg3_cm)
+
+
+print("\n")
+# Question 4 ====================================================================================================
+print("Question 4:")
 
 
 
